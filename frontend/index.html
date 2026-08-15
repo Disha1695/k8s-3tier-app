@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>K8s 3-Tier App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    button { padding: 10px 18px; margin-right: 8px; cursor: pointer; }
+    li { padding: 4px 0; }
+    #status { color: #666; font-size: 14px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Disha's Kubernetes Project</h1>
+  <button onclick="addUser()">Add User</button>
+  <button onclick="loadUsers()">Show Users</button>
+  <ul id="userList"></ul>
+  <div id="status"></div>
+
+  <script>
+    // हा JS BROWSER मध्ये चालतो, container मध्ये नाही.
+    // म्हणून इथे 'backend-service' असं K8s नाव वापरून चालणार नाही —
+    // browser ला K8s चं internal DNS दिसत नाही.
+    // म्हणून backend NodePort ने बाहेर उघडावा लागतो.
+    const BACKEND_URL = window.location.hostname + ':30081';
+
+    function addUser() {
+      setStatus('Adding...');
+      fetch(`http://${BACKEND_URL}/api/add`)
+        .then(r => r.json())
+        .then(() => { setStatus('Added ✅'); loadUsers(); })
+        .catch(e => setStatus('Error: ' + e.message));
+    }
+
+    function loadUsers() {
+      setStatus('Loading...');
+      fetch(`http://${BACKEND_URL}/api/users`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('userList');
+          list.innerHTML = '';
+          data.forEach(u => {
+            const li = document.createElement('li');
+            li.textContent = `${u.id} - ${u.name}`;
+            list.appendChild(li);
+          });
+          setStatus(`${data.length} users loaded ✅`);
+        })
+        .catch(e => setStatus('Error: ' + e.message));
+    }
+
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "30081:3000"          # frontend चा JS 30081 वर call करतो, म्हणून हाच port
+    environment:
+      DB_HOST: database        # ← service चं नावच hostname म्हणून वापरलं!
+      DB_USER: root
+      DB_PASSWORD: Disha@96
+      DB_NAME: appdb
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8
+    ports:
+      - "33061:3306"          # backend चा JS 33061 वर call करतो, म्हणून हाच port
+    environment:
+      MYSQL_ROOT_PASSWORD: Disha@96
+      MYSQL_DATABASE: appdb
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
