@@ -1,0 +1,20 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: myapp-cluster
+nodes:
+
+# ── मेंदू: cluster manage करतो, app pods इथे चालत नाहीत ──
+- role: control-plane
+  extraPortMappings:
+    - containerPort: 30080     # Frontend NodePort
+      hostPort: 8081           # EC2 वरचा port
+      protocol: TCP
+    - containerPort: 30081     # Backend NodePort
+      hostPort: 30081
+      protocol: TCP
+
+# ── मजूर 1: इथे तुझे pods चालतील ──
+- role: worker
+
+# ── मजूर 2: इथेही तुझे pods चालतील ──
+- role: worker
